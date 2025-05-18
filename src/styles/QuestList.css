@@ -1,0 +1,90 @@
+/* QuestList.css */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .card {
+    background-color: var(--card-background);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+  
+  .card-content {
+    padding: 20px;
+    position: relative;
+  }
+  
+  .ch3 {
+    font-family: 'UnifrakturCook', serif;
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: var(--accent-color);
+  }
+  
+  .xp {
+    background-color: rgba(255, 215, 0, 0.2);
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: inline-block;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    color: var(--accent-color);
+  }
+  
+  .status {
+    font-family: 'Macondo', cursive;
+    font-style: italic;
+    margin-bottom: 10px;
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-left: 10px;
+  }
+  
+  .status.yet {
+    color: #ddd;
+    background-color: rgba(128, 128, 128, 0.3);
+  }
+  
+  .status.progress {
+    color: #ffd700;
+    background-color: rgba(255, 215, 0, 0.2);
+  }
+  
+  .status.complete {
+    color: #00ff00;
+    background-color: rgba(0, 255, 0, 0.2);
+  }
+  
+  .card-buttonrow {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .carddetail-btn {
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Macondo', cursive;
+    transition: all 0.3s ease;
+  }
+  
+  .carddetail-btn:hover {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+  }

@@ -1,0 +1,42 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Macondo&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
+
+/* App.css */
+:root {
+  --primary-color: #333;
+  --accent-color: #FFD700;
+  --text-color: #ddd;
+  --background-color: #222;
+  --card-background: #333;
+  --header-height: 60px;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.App {
+  position: relative;
+  min-height: 100vh;
+  max-width: max-content;
+}
+
+
+
+/* Apply overlay when detail or add quest is open */
+body.detail-open::after,
+body.addquest-open::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}

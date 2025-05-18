@@ -1,0 +1,62 @@
+/* Header.css */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--primary-color);
+    height: var(--header-height);
+    padding: 0 200px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .logo {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 18px;
+    margin: 0;
+    color: var(--accent-color);
+  }
+  
+  .right-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .xp-box {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 215, 0, 0.2);
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--accent-color);
+  }
+  
+  .xp-icon {
+    margin-right: 5px;
+  }
+  
+  .xp-amount {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    color: var(--accent-color);
+  }
+  
+  .addtask-btn {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+  
+  .addtask-btn:hover {
+    background-color: #ffd100cc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
