@@ -23,7 +23,8 @@ body {
 .App {
   position: relative;
   min-height: 100vh;
-  max-width: max-content;
+  max-width: 100%;
+  width: 100vw;
 }
 
 

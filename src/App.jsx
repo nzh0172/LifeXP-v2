@@ -108,7 +108,6 @@ function App() {
   // Add a new quest
   const addQuest = (questData) => {
     setQuests([...quests, questData]);
-    alert("Quest added successfully!");
     setShowAddQuest(false);
   };
 
@@ -137,7 +136,7 @@ function App() {
       {showAddQuest && (
         <AddQuest 
           onAddQuest={addQuest} 
-          onHideAddQuest={handleHideAddQuest} 
+          onClose={handleHideAddQuest} 
         />
       )}
     </div>
