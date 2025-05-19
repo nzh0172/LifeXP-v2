@@ -42,10 +42,11 @@ def generate_quest(task):
         'For each task, give a cool epic medieval quest name under this format, Title: X. '
         'Write exactly as the original task under this format, Objective: X, do not add any additional info '
         'such as time or deadline or other character unless mentioned in the task. '
-        'Make a suitable icon for the quest under this format, Icon: X.'
+        'Make a suitable icon for the quest using emoji under this format, Icon: X. For example, icons like 🧙, 🏃‍♀️'
         'Do not put any symbols such as double ** in title, backstory, objective, reward and icon. '
         'For each task, give an amount of coins that is appropriate for the level of difficulty of the task. '
         'The coins must not be zero or negative. Give only coins, no other comments needed. Make it under this format "Reward: X coins"'
+        'Do not bold the formatting, for example: **Title**, **Backstory**'
         'The appearance order must be: first, Title, then Backstory, Objective, Reward and Icon.'
     },
     {
