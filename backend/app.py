@@ -11,9 +11,13 @@ from ollama import ChatResponse
 from models import db, Quest
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:4000"}})
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quests.db'
 db.init_app(app) 
+
+@app.route('/')
+def home():
+    return "Backend is running."
 
 @app.route('/quests', methods=['GET'])
 def get_quests():
@@ -55,19 +59,19 @@ def generate_quest(task):
 @app.route('/generate', methods=['POST', 'OPTIONS'])
 def generate():
     if request.method == 'OPTIONS':
-        response = app.make_default_options_response()
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-        return response
+        return '', 204
 
     data = request.json
+    print("Request received:", data)
+
     task = data.get("task", "")
     if not task:
         return jsonify({"error": "No task provided"}), 400
 
     #Generate a quest
     quest = generate_quest(task)
+    print("Generated quest:", quest)
+
 
     #Extract given output with regex expression
     title_match = re.search(r"Title:\s(.+)", quest)
@@ -95,6 +99,51 @@ def generate():
         "icon": icon
     })
 
+def add_default_quests():
+    if Quest.query.count() == 0:  # only add if DB is empty
+        default_quests = [
+            Quest(
+                title="The Scrolls of Wisdom Teste",
+                backstory="The ancient tomes await, heavy with knowledge...",
+                objective="study",
+                reward=1000,
+                icon="📖",
+                status="Yet to Embark"
+            ),
+            Quest(
+                title="Sanity Run",
+                backstory="Madness brews like a storm in your skull...",
+                objective="jog",
+                reward=900,
+                icon="🏃‍♀️",
+                status="Yet to Embark"
+            ),
+            Quest(
+                title="Brew of Awakening",
+                backstory="The morning fog clings to your mind...",
+                objective="make a cup of coffee.",
+                reward=850,
+                icon="🔮",
+                status="Yet to Embark"
+            )
+        ]
+        db.session.add_all(default_quests)
+        db.session.commit()
+        print("✅ Default quests added.")
+
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:4000'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+    return response
+
+with app.app_context():
+    # db.drop_all()
+    db.create_all()
+    add_default_quests()
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5050)
 
