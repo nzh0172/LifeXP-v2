@@ -134,7 +134,11 @@
   }
   
   .output-prompt {
-    margin-top: 20px;
+    margin-top: 5px;
+  }
+
+  #ai-button {
+    margin-bottom: 20px;
   }
   
   .submit-section {

@@ -1,105 +1,137 @@
 /* QuestDetail.css */
 .task-detail {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 500px;
-    background-color: var(--primary-color);
-    border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    z-index: 100;
-    display: none;
-    max-height: 80vh;
-    overflow-y: auto;
-    border: 2px solid var(--accent-color);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  background-color: var(--primary-color);
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  display: none;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 2px solid var(--accent-color);
+}
+
+.task-detail.active {
+  display: block;
+}
+
+.quest-title {
+  font-family: 'UnifrakturCook', serif;
+  color: var(--accent-color);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--accent-color);
+  position: relative;
+  word-break: break-word; /* Allow long titles to break */
+}
+
+.quest-title .status {
+  font-family: 'Macondo', cursive;
+  font-size: 14px;
+  position: absolute;
+  right: 0;
+  bottom: 5px;
+}
+
+.quest-backstory {
+  font-family: 'Macondo', cursive;
+  font-style: italic;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.quest-objective, .quest-reward {
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.detail-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.accept, .complete, .giveup {
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  border: none;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.accept, .complete {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.accept:hover, .complete:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.giveup {
+  background-color: #f44336;
+  color: white;
+}
+
+.giveup:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  color: var(--text-color);
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close:hover {
+  color: var(--accent-color);
+}
+
+/* Media queries for responsive design */
+@media screen and (max-width: 480px) {
+  .task-detail {
+    padding: 20px;
+    width: 95%;
   }
-  
-  .task-detail.active {
-    display: block;
-  }
+
   
   .quest-title {
-    font-family: 'UnifrakturCook', serif;
-    color: var(--accent-color);
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--accent-color);
-    position: relative;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    padding-right: 30px; /* Space for the close button */
   }
   
   .quest-title .status {
-    font-family: 'Macondo', cursive;
-    font-size: 14px;
-    position: absolute;
-    right: 0;
-    bottom: 5px;
-  }
-  
-  .quest-backstory {
-    font-family: 'Macondo', cursive;
-    font-style: italic;
-    margin-bottom: 20px;
-    line-height: 1.6;
-  }
-  
-  .quest-objective, .quest-reward {
-    margin-bottom: 20px;
-    line-height: 1.5;
-  }
-  
-  .detail-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
+    position: static;
+    display: block;
+    margin-top: 5px;
+    text-align: left;
   }
   
   .accept, .complete, .giveup {
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 12px;
-    transition: all 0.3s ease;
-    border: none;
+    padding: 8px 16px;
+    font-size: 10px;
   }
-  
-  .accept, .complete {
-    background-color: #4CAF50;
-    color: white;
-  }
-  
-  .accept:hover, .complete:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .giveup {
-    background-color: #f44336;
-    color: white;
-  }
-  
-  .giveup:hover {
-    background-color: #d32f2f;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: transparent;
-    color: var(--text-color);
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    transition: color 0.3s ease;
-  }
-  
-  .close:hover {
-    color: var(--accent-color);
-  }
+}
