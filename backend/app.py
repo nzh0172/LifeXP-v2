@@ -33,28 +33,28 @@ def add_quest():
     return jsonify({'message': 'Quest added successfully'})
 
 def generate_quest(task):
-    response: ChatResponse = chat(model='llama3.2', messages=[
-    {
-        'role': 'system',
-        'content': 'You are to turn a given task into a quest with short backstory consists of 1 short paragraph with 3 sentences, 50 words max. '
-        'If the task contains a name or a deadline, you must include it. '
-        'The quest must have the users involvement using pronoun You, not a third party. Make it under this format "Backstory:"'
-        'For each task, give a cool epic medieval quest name under this format, Title: X. '
-        'Write exactly as the original task under this format, Objective: X, do not add any additional info '
-        'such as time or deadline or other character unless mentioned in the task. '
-        'Make a suitable icon for the quest using emoji under this format, Icon: X. For example, icons like 🧙, 🏃‍♀️'
-        'Do not put any symbols such as double ** in title, backstory, objective, reward and icon. '
-        'For each task, give an amount of coins that is appropriate for the level of difficulty of the task. '
-        'The coins must not be zero or negative. Give only coins, no other comments needed. Make it under this format "Reward: X coins"'
-        'Do not bold the formatting, for example: **Title**, **Backstory**'
-        'The appearance order must be: first, Title, then Backstory, Objective, Reward and Icon.'
-    },
-    {
-        'role': 'user',
-        'content': task
-    }
-    ])
-    return response.message.content
+    prompt = (
+        "Convert the following task into a medieval fantasy quest using this format:"
+
+        "Title: [medieval-themed quest name, no emoji here]  "
+        "Backstory: [1 paragraph, 3 sentences max, ~50 words, from user's perspective using You] "
+        "Objective: [Copy the original task, if there's name theres capital letter]"
+        "Reward: [any positive number above 100, do not give 0]"
+        "Icon: [suitable emoji with the task, for example: ⚗️ 💀 ⭐️]  "
+
+        "Do not use bold, symbols like **, or extra characters."
+
+        f"{task}"
+    )
+
+    response = requests.post("http://localhost:11434/api/generate", json={
+        "model": "llama3.2",
+        "prompt": prompt,
+        "stream": False
+    })
+
+    result = response.json()
+    return result.get("response", "")
 
 
 @app.route('/generate', methods=['POST', 'OPTIONS'])
@@ -73,32 +73,31 @@ def generate():
     quest = generate_quest(task)
     print("Generated quest:", quest)
 
-
     #Extract given output with regex expression
-    title_match = re.search(r"Title:\s(.+)", quest)
-    title = title_match.group(1) if title_match else "Title not found"
+    parsed = parse_quest_text(task, quest)
 
-    backstory_match = re.search(r'Backstory:\s*(.+?)\nObjective:', quest, re.DOTALL)
-    backstory = backstory_match.group(1) if backstory_match else "Backstory not found"
+    return jsonify(parsed)
 
-    objective_match = re.search(r"Objective:\s(.+)", quest)
-    objective = objective_match.group(1) if objective_match else "Objective not found"
+def capitalize_first_letter(text):
+    return text[0].upper() + text[1:] if text else text
 
-    reward_match = re.search(r'Reward:\s*(\d+)\s*coins', quest)
-    reward = reward_match.group(1) if reward_match else 0
+def parse_quest_text(task, quest):
+    # Use re.DOTALL to match multiple sentences with dots (for backstory), re.IGNORECASE makes the regex parser case insensitive (Total, total, ToTAL is accepted)
+    title_match = re.search(r'\**\s*Title\s*:\s*(.+)', quest, re.IGNORECASE)
+    backstory_match = re.search(r'\**\s*Backstory\s*:\s*(.+?)(?=\n\**\s*Objective\s*:)', quest, re.IGNORECASE | re.DOTALL)
+    #backstory_match = re.search(r'\**\s*Backstory\s*:\s*(.+?)(?=\n\**\s*Reward\s*:)', quest, re.IGNORECASE | re.DOTALL)
+    objective_match = re.search(r'\**\s*Objective\s*:\s*(.+)', quest, re.IGNORECASE)
+    reward_match = re.search(r'\**\s*Reward\s*:\s*(\d+)\s*', quest, re.IGNORECASE)
+    icon_match = re.search(r'\**\s*Icon\s*:\s*(.+)', quest, re.IGNORECASE)
 
-    icon_match = re.search(r'Icon:\s*(.+)', quest);
-    icon = icon_match.group(1) if icon_match else "📜"
-
-
-
-    return jsonify({
-        "title": title,
-        "backstory": backstory,
-        "objective": objective,
-        "reward": int(reward),
-        "icon": icon
-    })
+    return {
+        "title": title_match.group(1).strip() if title_match else "Title not found",
+        "backstory": backstory_match.group(1).strip() if backstory_match else "Backstory not found",
+        "objective": capitalize_first_letter(objective_match.group(1).strip()) if objective_match else "Objective not found",
+        # "objective": capitalize_first_letter(task.strip()),  # use original task
+        "reward": int(reward_match.group(1)) if reward_match else 0,
+        "icon": icon_match.group(1).strip() if icon_match else "📜"
+    }
 
 def add_default_quests():
     if Quest.query.count() == 0:  # only add if DB is empty
