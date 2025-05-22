@@ -40,7 +40,7 @@ def generate_quest(task):
         "Backstory: [1 paragraph, 3 sentences max, ~50 words, from user's perspective using You] "
         "Objective: [Copy the original task, if there's name theres capital letter]"
         "Reward: [any positive number above 100, do not give 0]"
-        "Icon: [suitable emoji with the task, for example: ⚗️ 💀 ⭐️]  "
+        "Icon: [any suitable emoji/icon for the task]  "
 
         "Do not use bold, symbols like **, or extra characters."
 
@@ -48,6 +48,8 @@ def generate_quest(task):
     )
 
     response = requests.post("http://localhost:11434/api/generate", json={
+        # Attempted to used llama3.2:1b, faster but produced undesirable result
+        # llama3.2:3b is slower but produced better (avg 30s response time)
         "model": "llama3.2",
         "prompt": prompt,
         "stream": False

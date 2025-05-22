@@ -3,14 +3,17 @@ import '../styles/AddQuest.css';
 
 export default function AddQuest({ onAddQuest, onClose }) {
   const [newTask, setNewTask] = useState('');
-  const [outputPrompt, setOutputPrompt] = useState('');
-  const [formatError, setFormatError] = useState(false);
+  const [outputPrompt, setOutputPrompt] = useState(''); // Print output prompt on textbox
+  const [formatError, setFormatError] = useState(false); // Check for format
+  const [isGenerating, setIsGenerating] = useState(false); // Loading state
 
   const callOllama = async () => {
     if (!newTask.trim()) {
       alert("Please enter a task first!");
       return;
     }
+
+    setIsGenerating(true); // Start loading
 
     try {
       const response = await fetch("http://localhost:5050/generate", {
@@ -30,6 +33,8 @@ export default function AddQuest({ onAddQuest, onClose }) {
     } catch (err) {
       console.error("Error generating quest:", err);
       alert("Something went wrong generating the quest.");
+    } finally {
+      setIsGenerating(false); // End loading
     }
   };
 
@@ -81,20 +86,22 @@ export default function AddQuest({ onAddQuest, onClose }) {
             name="newtask" 
             value={newTask}
             onChange={handleTaskChange}
+            disabled={isGenerating} // Disable text area when generating
           />
         </form>
       </div>
 
       <div className="output-prompt">
-        <button type="button" id="ai-button" onClick={callOllama}>🧙 Generate with AI</button>
+
         <textarea 
           id="outputPrompt" 
           name="outputPrompt" 
-          placeholder="AI-generated quest will appear here..." 
+          placeholder={isGenerating ? "AI is generating your quest...": "AI-generated quest will appear here..." }
           required
           value={outputPrompt}
           readOnly
           style={{ borderColor: formatError ? 'red' : '#ccc' }}
+          disabled={isGenerating}
         />
         {formatError && (
           <p id="formatError" style={{ color: 'red' }}>
@@ -104,16 +111,21 @@ export default function AddQuest({ onAddQuest, onClose }) {
       </div>
 
       <div className="submit-section">
+      <button 
+          type="button" 
+          id="ai-button"
+          disabled={isGenerating}
+          onClick={callOllama}> {isGenerating ? 'Generating...' : '🧙 Generate with AI' }</button>
         <button 
           className="submitNewQuest-btn" 
           id="submitNewQuest-btn" 
           type="button" 
           onClick={addQuest}
-          disabled={formatError}
+          disabled={formatError||isGenerating}
         >
           Add Task
         </button>
-        <button className="close" onClick={onClose}>❌</button>
+        <button className="close" onClick={onClose} disabled={isGenerating}>❌</button>
       </div>
     </div>
   );

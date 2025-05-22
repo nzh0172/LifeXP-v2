@@ -109,6 +109,19 @@
   color: var(--accent-color);
 }
 
+/* When component is active */
+.detail-open .cards-container {
+  pointer-events: none;
+  user-select: none;
+  filter: blur(3px); /* Optional for visual effect */
+}
+
+.detail-open .header{
+  pointer-events: none;
+  user-select: none;
+}
+
+
 /* Media queries for responsive design */
 @media screen and (max-width: 480px) {
   .task-detail {

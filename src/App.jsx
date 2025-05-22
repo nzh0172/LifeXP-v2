@@ -111,6 +111,13 @@ function App() {
     setShowAddQuest(false);
   };
 
+  // Other UI overlay on top
+  useEffect(() => {
+    document.body.classList.toggle('add-quest-open', showAddQuest);
+    document.body.classList.toggle('detail-open', showDetail);
+  }, [showAddQuest, showDetail]);
+  
+
   return (
     <div className="App">
       <Header 
