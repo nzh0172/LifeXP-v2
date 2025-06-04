@@ -32,14 +32,15 @@ function App() {
       .then((data) => {
         if (data.user) {
           setUser(data.user);
-          setTotalXP(data.user.totalXP)
+          setTotalXP(data.user.totalXP);
         }
       })
       .catch((err) => console.error('Error fetching /me:', err));
   }, []);
 
-  // If not authenticated, show login (or register) UI
+  // When we have a user, fetch that user's quests
   useEffect(() => {
+    // If not authenticated, show login (or register) UI
     if (!user) return;
 
     // Example: fetch quests from protected endpoint
@@ -55,27 +56,7 @@ function App() {
         return res.json();
       })
       .then((data) => {
-      // Example #1: if your backend returns { quests: […], totalXP: <number> }
-      if (Array.isArray(data.quests)) {
-        setQuests(data.quests);
-        setTotalXP(data.totalXP ?? 0);
-        return;
-      }
-
-      // Example #2: if your backend just returns an array of quests (and no totalXP),
-      // you can compute totalXP on the client by summing up the `reward` field of completed quests:
-      if (Array.isArray(data)) {
         setQuests(data);
-        const xpFromCompleted = data
-          .filter((q) => q.status === 'Completed')
-          .reduce((sum, q) => sum + (q.reward || 0), 0);
-        setTotalXP(xpFromCompleted);
-        return;
-      }
-
-      // Fallback: if shape is something else, just clear out
-      setQuests([]);
-      setTotalXP(0);
       })
       .catch((err) => console.error(err));
   }, [user]);
@@ -143,6 +124,7 @@ function App() {
               .then((data) => {
                 if (data.user) {
                   setUser(data.user);
+                  setTotalXP(data.user.totalXP); // Fixed showing 0 after logging in then show actual xp
                 }
               })
               .catch((err) => console.error('Error fetching /me:', err));
@@ -201,17 +183,29 @@ function App() {
     }
   };
 
-  // Complete a quest
-  const completeQuest = () => {
-    const reward = quests[currentQuestIndex].reward;
-    setTotalXP(prevXP => prevXP + reward);
-    
-    const updatedQuests = [...quests];
-    updatedQuests.splice(currentQuestIndex, 1);
-    setQuests(updatedQuests);
-    
-    alert(`Quest completed! You earned ${reward} XP.`);
-    setShowDetail(false);
+  // Complete a quest 
+  const completeQuest = async (questId, reward) => {
+    try {
+      const resp = await fetch(`http://localhost:5050/quests/${questId}`, {
+        method: "PATCH",
+        credentials: "include", // send cookie
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "Completed" }),
+      });
+      if (!resp.ok) throw new Error("Failed to complete quest");
+
+      const json = await resp.json();
+      // JSON: { message: "Quest completed", total_xp: <new_total> }
+
+      // 1) Update local totalXP to match the server
+      setTotalXP(json.totalXP);
+
+      // 2) Remove that quest from local state
+      setQuests((prev) => prev.filter((q) => q.id !== questId));
+    } catch (err) {
+      console.error("Error completing quest:", err);
+      alert("Could not complete quest.");
+    }
   };
 
   // Add a new quest
@@ -261,14 +255,21 @@ function App() {
           onHideDetail={handleHideDetail}
           onAcceptQuest={() => acceptQuest(currentQuestIndex)}
           onGiveupQuest={giveupQuest}
-          onCompleteQuest={completeQuest}
+          onCompleteQuest={() => {
+            const q = quests[currentQuestIndex];
+            completeQuest(q.id, q.reward);
+          }}
         />
       )}
       
       {showAddQuest && (
-        <AddQuest 
-          onAddQuest={addQuest} 
-          onClose={handleHideAddQuest} 
+        <AddQuest
+          onAddQuest={(savedQuest) => {
+            // savedQuest comes back from the server (with an `id`).
+            setQuests((prev) => [...prev, savedQuest]);
+            setShowAddQuest(false);
+          }}
+          onClose={handleHideAddQuest}
         />
       )}
     </div>

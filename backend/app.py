@@ -153,6 +153,34 @@ def add_quest():
     db.session.commit()
     return jsonify(new_q.serialize()), 201
 
+@app.route('/quests/<int:qid>', methods=['PATCH', 'OPTIONS'])
+def update_quest(qid):
+    # 1) Respond to preflight unconditionally
+    if request.method == 'OPTIONS':
+        # Must respond 204 here; later after_request will attach CORS headers
+        return '', 204
+
+    # 2) Now do the login-required logic
+    if 'user_id' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    user_id = session['user_id']
+    quest = Quest.query.get(qid)
+    if not quest or quest.user_id != user_id:
+        return jsonify({'error': 'Not found or not your quest'}), 404
+
+    data = request.get_json() or {}
+    if data.get('status') != 'Completed':
+        return jsonify({'error': 'Invalid status update'}), 400
+
+    user = User.query.get(user_id)
+    user.totalXP += quest.reward
+    db.session.add(user)
+    db.session.delete(quest)
+    db.session.commit()
+
+    return jsonify({'message': 'Quest completed', 'total_xp': user.totalXP}), 200
+
 @login_required
 def generate_quest(task):
     prompt = (
