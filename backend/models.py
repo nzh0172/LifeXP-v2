@@ -12,6 +12,9 @@ class User(db.Model):
     # Store the hashed password, not plain text
     password_hash = db.Column(db.String(128), nullable=False)
 
+    # Store total XP
+    totalXP = db.Column(db.Integer, default=0, nullable=False)
+
     # back‐reference: one User → many Quests
     quests = db.relationship('Quest', backref='owner', lazy=True)
 
@@ -20,6 +23,13 @@ class User(db.Model):
 
     def check_password(self, plaintext_password):
         return check_password_hash(self.password_hash, plaintext_password)
+    
+    def serialize(self):
+        return{
+            "id": self.id,
+            "username": self.username,
+            "totalXP": self.totalXP
+        }
 
 class Quest(db.Model):
     __tablename__ = 'quests'

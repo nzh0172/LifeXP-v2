@@ -14,6 +14,7 @@ export default function Register({ onRegisterSuccess, onCancel }) {
     try {
       const resp = await fetch('http://localhost:5050/register', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });

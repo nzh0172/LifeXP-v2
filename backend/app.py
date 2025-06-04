@@ -115,7 +115,7 @@ def get_quests():
     if request.method == 'OPTIONS':
         return '', 204
 
-    uid = session['user_id']
+    uid = session.get('user_id')
     user_quests = Quest.query.filter_by(user_id=uid).all()
     return jsonify([q.serialize() for q in user_quests]), 200
 
@@ -151,7 +151,7 @@ def add_quest():
 
     db.session.add(new_q)
     db.session.commit()
-    return jsonify({'message': 'Quest added successfully'}), 201
+    return jsonify(new_q.serialize()), 201
 
 @login_required
 def generate_quest(task):
@@ -259,8 +259,11 @@ def add_default_quests():
         print("✅ Default quests added.")
 
 # ─── OPTIONAL: GET CURRENT USER INFO ──────────────────────────────────────────
-@app.route('/me', methods=['GET'])
+@app.route('/me', methods=['GET', 'OPTIONS'])
 def get_me():
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'user': None}), 200
@@ -270,7 +273,7 @@ def get_me():
         session.clear()
         return jsonify({'user': None}), 200
 
-    return jsonify({'user': {'id': user.id, 'username': user.username}}), 200
+    return jsonify({'user': user.serialize()}), 200
 
 @app.after_request
 def add_cors_headers(response):
@@ -290,5 +293,5 @@ with app.app_context():
 '''
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5050)
+    app.run(host="localhost", debug=True, port=5050)
 

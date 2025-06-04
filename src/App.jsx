@@ -32,6 +32,7 @@ function App() {
       .then((data) => {
         if (data.user) {
           setUser(data.user);
+          setTotalXP(data.user.totalXP)
         }
       })
       .catch((err) => console.error('Error fetching /me:', err));
