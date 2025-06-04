@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/Header.css';
 
-function Header({ totalXP, onShowAddQuest }) {
+function Header({ totalXP, onShowAddQuest, children}) {
   return (
     <div className="header">
       <div>
@@ -13,6 +13,11 @@ function Header({ totalXP, onShowAddQuest }) {
           <span className="xp-amount">{totalXP} XP</span>
         </div>
         <button className="addtask-btn" onClick={onShowAddQuest}>➕ New Task</button>
+
+        {/*To place logout button via main, can't put here since user is null on first run*/}
+        {/*In React, anything you put between <Header>…</Header> is passed to the Header component as a special prop called children.
+         If your Header JSX never references {children}, then that nested content is simply ignored. */}
+        {children}
       </div>
     </div>
   );

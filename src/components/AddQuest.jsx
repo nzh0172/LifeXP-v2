@@ -19,6 +19,7 @@ export default function AddQuest({ onAddQuest, onClose }) {
       const response = await fetch("http://localhost:5050/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include', //added here
         body: JSON.stringify({ task: newTask }),
       });
 
@@ -42,7 +43,7 @@ export default function AddQuest({ onAddQuest, onClose }) {
     setNewTask(e.target.value);
   };
 
-  const addQuest = () => {
+  const addQuest = async () => {
     if (formatError) {
       alert("Invalid quest format.");
       return;
@@ -68,11 +69,26 @@ export default function AddQuest({ onAddQuest, onClose }) {
       return;
     }
 
-    onAddQuest(newQuest);
-    setNewTask('');
-    setOutputPrompt('');
-    alert("Quest added successfully!");
-  };
+    // Now POST to /quests so the server writes to the database
+    try {
+      const resp = await fetch("http://localhost:5050/quests", {
+        method: "POST",
+        credentials: "include",            // <<– must include so Flask sees session['user_id']
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newQuest)
+      });
+      if (!resp.ok) throw new Error("Failed to save quest");
+      const saved = await resp.json();    // assuming your /quests POST returns new_q.serialize()
+      // Now update React state with the truly saved quest:
+      onAddQuest(saved);
+      setNewTask("");
+      setOutputPrompt("");
+      alert("Quest saved successfully!");
+    } catch (err) {
+      console.error("Error saving quest:", err);
+      alert("Could not save quest to the database.");
+    }
+    };
 
   return (
     <div className="add-quest active">
