@@ -153,8 +153,32 @@ def add_quest():
     db.session.commit()
     return jsonify(new_q.serialize()), 201
 
+# ─── ACCEPT A QUEST (set status to 'In Progress') ──────────────
+@app.route("/quests/<int:qid>/accept", methods=["OPTIONS", "PATCH"])
+def accept_quest(qid):
+    # 1) Respond to preflight immediately
+    if request.method == "OPTIONS":
+        return "", 204
+
+    # 2) Now enforce login
+    if "user_id" not in session:
+        return jsonify({ "error": "Authentication required" }), 401
+
+    # 3) Look up and verify ownership
+    quest = Quest.query.get(qid)
+    if not quest or quest.user_id != session["user_id"]:
+        return jsonify({ "error": "Not found or not yours" }), 404
+
+    # 4) Update status to "In Progress"
+    quest.status = "In Progress"
+    db.session.add(quest)
+    db.session.commit()
+
+    return jsonify({ "id": quest.id, "status": quest.status }), 200
+
+
 @app.route('/quests/<int:qid>', methods=['PATCH', 'OPTIONS'])
-def update_quest(qid):
+def complete_quest(qid):
     # 1) Respond to preflight unconditionally
     if request.method == 'OPTIONS':
         # Must respond 204 here; later after_request will attach CORS headers
@@ -179,7 +203,10 @@ def update_quest(qid):
     db.session.delete(quest)
     db.session.commit()
 
-    return jsonify({'message': 'Quest completed', 'total_xp': user.totalXP}), 200
+    return jsonify({
+        'id': quest.id,
+        'totalXP': user.totalXP
+    }), 200
 
 @login_required
 def generate_quest(task):

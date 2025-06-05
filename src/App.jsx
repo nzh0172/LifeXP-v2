@@ -163,14 +163,25 @@ function App() {
   };
 
   // Accept a quest
-  const acceptQuest = (index) => {
-    const updatedQuests = [...quests];
-    updatedQuests[index] = {
-      ...updatedQuests[index],
-      status: "In Progress"
-    };
-    setQuests(updatedQuests);
-    alert(`Quest accepted! ${updatedQuests[index].title} is now in progress.`);
+  const acceptQuest = async (questId) => {
+    try {
+      const resp = await fetch(`http://localhost:5050/quests/${questId}/accept`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!resp.ok) throw new Error('Failed to accept quest');
+
+      const { status } = await resp.json(); // { id: 4, status: "In Progress" }
+      // Update local state: find the quest and set its new status
+      setQuests(prev => prev.map(q =>
+        q.id === questId
+          ? { ...q, status }
+          : q
+      ));
+    } catch (err) {
+      console.error('Error accepting quest:', err);
+    }
   };
 
   // Give up on a quest
@@ -184,7 +195,7 @@ function App() {
   };
 
   // Complete a quest 
-  const completeQuest = async (questId, reward) => {
+  const completeQuest = async (questId) => {
     try {
       const resp = await fetch(`http://localhost:5050/quests/${questId}`, {
         method: "PATCH",
@@ -202,6 +213,10 @@ function App() {
 
       // 2) Remove that quest from local state
       setQuests((prev) => prev.filter((q) => q.id !== questId));
+
+      // 3) Close the detail overlay so it no longer blocks the UI
+      setShowDetail(false);
+
     } catch (err) {
       console.error("Error completing quest:", err);
       alert("Could not complete quest.");
@@ -253,11 +268,14 @@ function App() {
         <QuestDetail 
           quest={quests[currentQuestIndex]} 
           onHideDetail={handleHideDetail}
-          onAcceptQuest={() => acceptQuest(currentQuestIndex)}
+          onAcceptQuest={() => {
+            const q = quests[currentQuestIndex];
+            if (q) acceptQuest(q.id);
+          }}
           onGiveupQuest={giveupQuest}
           onCompleteQuest={() => {
             const q = quests[currentQuestIndex];
-            completeQuest(q.id, q.reward);
+            completeQuest(q.id);
           }}
         />
       )}
