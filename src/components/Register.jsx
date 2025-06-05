@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../styles/Auth.css'
 
 export default function Register({ onRegisterSuccess, onCancel }) {
   const [username, setUsername] = useState('');
@@ -14,8 +15,8 @@ export default function Register({ onRegisterSuccess, onCancel }) {
     try {
       const resp = await fetch('http://localhost:5050/register', {
         method: 'POST',
-        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
 
@@ -39,7 +40,8 @@ export default function Register({ onRegisterSuccess, onCancel }) {
   };
 
   return (
-    <div style={{ maxWidth: '320px', margin: 'auto', padding: '1rem' }}>
+    <div className="auth-container">
+    <div className="auth-box" style={{ maxWidth: '320px', margin: 'auto', padding: '1rem' }}>
       <h2>📝 Register</h2>
       {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
       {successMsg && <p style={{ color: 'green' }}>{successMsg}</p>}
@@ -71,6 +73,7 @@ export default function Register({ onRegisterSuccess, onCancel }) {
       <button onClick={onCancel} style={{ marginTop: '0.5rem', color: 'gray' }}>
         Cancel
       </button>
+    </div>
     </div>
   );
 }
