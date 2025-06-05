@@ -9,7 +9,10 @@ import Register from './components/Register.jsx';
 
 function App() {
   // State for user auth
-  const [user, setUser] = useState(null);          // null or { id, username }
+  // user: null = not‐logged‐in; {} = user data; undefined = not yet checked
+  const [user, setUser] = useState(undefined);
+  // checkingAuth: true while /me is in progress, false once done
+  const [checkingAuth, setCheckingAuth] = useState(true);  
   const [showRegister, setShowRegister] = useState(false);
 
   // State for floating XP popup after completing quest
@@ -28,17 +31,25 @@ function App() {
   useEffect(() => {
     fetch('http://localhost:5050/me', {
       method: 'GET',
-      credentials: 'include', // so cookie is sent
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.user) {
-          setUser(data.user);
-          setTotalXP(data.user.totalXP);
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.user) {
+        setUser(data.user);
+        setUser(data.user.totalXP);
+        } else {
+        setUser(null);
         }
       })
-      .catch((err) => console.error('Error fetching /me:', err));
+      .catch(err => {
+        console.error('Error fetching /me:', err);
+        setUser(null);
+      })
+      .finally(() => {
+        setCheckingAuth(false);
+      });
   }, []);
 
   // When we have a user, fetch that user's quests
@@ -105,7 +116,13 @@ function App() {
 
   // -----------------------------------------------------------------
   // If not logged in
-  if (!user) {
+  // Still checking “/me”? Don’t show login or main UI yet.
+  if (checkingAuth) {
+    return null; 
+    // or return <div className="spinner">Loading…</div> to put a loader
+  }
+
+  if (user === null) {
     return showRegister ? (
       <Register
         onRegisterSuccess={() => {
