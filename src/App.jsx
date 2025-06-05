@@ -12,6 +12,9 @@ function App() {
   const [user, setUser] = useState(null);          // null or { id, username }
   const [showRegister, setShowRegister] = useState(false);
 
+  // State for floating XP popup after completing quest
+  const [xpPopup, setXpPopup] = useState(null);
+
   // State for quests data
   const [quests, setQuests] = useState([]);
   const [totalXP, setTotalXP] = useState(0);
@@ -214,7 +217,16 @@ function App() {
       // 2) Remove that quest from local state
       setQuests((prev) => prev.filter((q) => q.id !== questId));
 
-      // 3) Close the detail overlay so it no longer blocks the UI
+      // 3) Show a floating XP popup
+      const rewardGained = quests.find(q => q.id === questId)?.reward || 0;
+      if (rewardGained > 0) {
+        // Use a unique “key” so React re-renders even if the same reward appears twice quickly
+        setXpPopup({ amount: rewardGained, key: Date.now() });
+        // After 1s (animation length), clear the popup
+        setTimeout(() => setXpPopup(null), 1000);
+      }
+
+      // 4) Close the detail overlay so it no longer blocks the UI
       setShowDetail(false);
 
     } catch (err) {
@@ -258,6 +270,11 @@ function App() {
         </div>
         </Header>
 
+      {xpPopup && (
+        <div key={xpPopup.key} className="xp-popup">
+          +{xpPopup.amount} XP
+        </div>
+      )}
       
       <QuestList 
         quests={quests} 

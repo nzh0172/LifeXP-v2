@@ -32,6 +32,7 @@
     padding: 5px 10px;
     border-radius: 5px;
     border: 1px solid var(--accent-color);
+    position: relative;
   }
   
   .xp-icon {
@@ -60,3 +61,31 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
+
+
+/* .xp-popup sits inside .header with absolute positioning */
+.xp-popup {
+  position: absolute;
+  right: 27rem;        /* align under the XP badge; tweak as needed */
+  top: 5.5rem;        /* a bit below the XP badge; adjust to taste */
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  pointer-events: none;
+  animation: floatUpFade 1s ease-out forwards;
+}
+
+/* Keyframes: float up ~20px while fading out */
+@keyframes floatUpFade {
+  0% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}

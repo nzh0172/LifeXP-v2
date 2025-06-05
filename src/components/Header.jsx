@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/Header.css';
 
-function Header({ totalXP, onShowAddQuest, children}) {
+function Header({ totalXP, xpPopup, popupKey, onShowAddQuest, children}) {
   return (
     <div className="header">
       <div>

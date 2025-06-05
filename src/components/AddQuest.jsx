@@ -115,7 +115,7 @@ export default function AddQuest({ onAddQuest, onClose }) {
           placeholder={isGenerating ? "AI is generating your quest...": "AI-generated quest will appear here..." }
           required
           value={outputPrompt}
-          readOnly
+          onChange={(e) => setOutputPrompt(e.target.value)}
           style={{ borderColor: formatError ? 'red' : '#ccc' }}
           disabled={isGenerating}
         />
