@@ -16,6 +16,11 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 2px solid transparent; /* put a transparent 2px border by default to override in progress*/
+}
+
+.card.in-progress{
+  border-color: #28a745;  
 }
 
 .card:hover {
@@ -28,6 +33,7 @@
   position: relative;
   justify-items: center;
 }
+
 
 .ch3 {
   font-family: 'UnifrakturCook', serif;

@@ -19,8 +19,9 @@ function QuestList({ quests, onShowDetail }) {
   return (
     <div className="cards-container">
       {quests.map((quest, index) => (
-        <div className="card" key={index}>
-          <div className="card-content">
+        // Give a green border in card for accepted quest
+        <div className={`card${quest.status === "In Progress" ? " in-progress" : ""}`} key={index}>
+        <div className="card-content">
             <div className="ch3">{quest.icon || "📜"} {quest.title}</div>
             <div className="xp">+{quest.reward} XP</div>
             {quest.status && (

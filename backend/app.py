@@ -208,6 +208,26 @@ def complete_quest(qid):
         'totalXP': user.totalXP
     }), 200
 
+@app.route('/quests/<int:qid>/giveup', methods=['OPTIONS','PATCH','DELETE'])
+def giveup_quest(qid):
+    # 1) Always let OPTIONS through
+    if request.method == 'OPTIONS':
+        return '', 204
+
+    # 2) Enforce login
+    if 'user_id' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    quest = Quest.query.get(qid)
+    if not quest or quest.user_id != session['user_id']:
+        return jsonify({'error': 'Not found or not yours'}), 404
+
+    # 3) Delete the quest row entirely
+    db.session.delete(quest)
+    db.session.commit()
+
+    return jsonify({'message': 'Quest deleted'}), 200
+
 @login_required
 def generate_quest(task):
     prompt = (

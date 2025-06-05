@@ -188,12 +188,28 @@ function App() {
   };
 
   // Give up on a quest
-  const giveupQuest = () => {
-    if (window.confirm("Are you sure you want to give up on this quest?")) {
-      const updatedQuests = [...quests];
-      updatedQuests.splice(currentQuestIndex, 1);
-      setQuests(updatedQuests);
+  const giveupQuest = async (questId) => {
+    try {
+      const resp = await fetch(
+        `http://localhost:5050/quests/${questId}/giveup`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+
+      if (!resp.ok) {
+        const errData = await resp.json();
+        throw new Error(errData.error || 'Failed to delete quest');
+      }
+
+      // Remove it from local state so the UI updates immediately
+      setQuests(prev => prev.filter(q => q.id !== questId));
       setShowDetail(false);
+    } catch (err) {
+      console.error('Error giving up quest:', err);
+      alert('Could not remove quest.');
     }
   };
 
@@ -289,7 +305,10 @@ function App() {
             const q = quests[currentQuestIndex];
             if (q) acceptQuest(q.id);
           }}
-          onGiveupQuest={giveupQuest}
+          onGiveupQuest={() => {
+            const q = quests[currentQuestIndex];
+            giveupQuest(q.id);
+          }}
           onCompleteQuest={() => {
             const q = quests[currentQuestIndex];
             completeQuest(q.id);
