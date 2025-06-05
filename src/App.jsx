@@ -33,15 +33,16 @@ function App() {
       method: 'GET',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (data.user) {
-        setUser(data.user);
-        setTotalXP(data.user.totalXP);
-        } else {
-        setUser(null);
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) {
+          setUser(data.user);
+          setTotalXP(data.user.totalXP);
         }
+       else {
+        setUser(null);
+       }
       })
       .catch(err => {
         console.error('Error fetching /me:', err);
