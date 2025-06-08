@@ -50,7 +50,7 @@ def login_required(fn):
 
 
 # ─── REGISTER ROUTE ───────────────────────────────────────────────────────────
-@app.route('/register', methods=['POST'])
+@app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json() or {}
     username = data.get('username', '').strip()
@@ -97,7 +97,7 @@ def login():
 
 
 # ─── LOGOUT ROUTE ─────────────────────────────────────────────────────────────
-@app.route('/logout', methods=['POST'])
+@app.route('/api/logout', methods=['POST'])
 def logout():
     session.clear()
     return jsonify({'message': 'Logged out'}), 200
@@ -109,7 +109,7 @@ def home():
     return "Backend is running."
 
 @login_required # Wrap quest-related models/route in @login_required
-@app.route('/quests', methods=['GET'])
+@app.route('/api/quests', methods=['GET'])
 def get_quests():
     # Only logged in users can reach this
     if request.method == 'OPTIONS':
@@ -120,7 +120,7 @@ def get_quests():
     return jsonify([q.serialize() for q in user_quests]), 200
 
 @login_required
-@app.route('/quests', methods=['POST'])
+@app.route('/api/quests', methods=['POST'])
 def add_quest():
     '''
     Now, whenever a “generate quest” request hits /quests with JSON like { "title": "...", … }, 
@@ -154,7 +154,7 @@ def add_quest():
     return jsonify(new_q.serialize()), 201
 
 # ─── ACCEPT A QUEST (set status to 'In Progress') ──────────────
-@app.route("/quests/<int:qid>/accept", methods=["OPTIONS", "PATCH"])
+@app.route("/api/quests/<int:qid>/accept", methods=["OPTIONS", "PATCH"])
 def accept_quest(qid):
     # 1) Respond to preflight immediately
     if request.method == "OPTIONS":
@@ -177,7 +177,7 @@ def accept_quest(qid):
     return jsonify({ "id": quest.id, "status": quest.status }), 200
 
 
-@app.route('/quests/<int:qid>', methods=['PATCH', 'OPTIONS'])
+@app.route('/api/quests/<int:qid>', methods=['PATCH', 'OPTIONS'])
 def complete_quest(qid):
     # 1) Respond to preflight unconditionally
     if request.method == 'OPTIONS':
@@ -208,7 +208,7 @@ def complete_quest(qid):
         'totalXP': user.totalXP
     }), 200
 
-@app.route('/quests/<int:qid>/giveup', methods=['OPTIONS','PATCH','DELETE'])
+@app.route('/api/quests/<int:qid>/giveup', methods=['OPTIONS','PATCH','DELETE'])
 def giveup_quest(qid):
     # 1) Always let OPTIONS through
     if request.method == 'OPTIONS':
@@ -256,7 +256,7 @@ def generate_quest(task):
     return result.get("response", "")
 
 @login_required
-@app.route('/generate', methods=['POST', 'OPTIONS'])
+@app.route('/api/generate', methods=['POST', 'OPTIONS'])
 def generate():
     if request.method == 'OPTIONS':
         return '', 204
@@ -334,7 +334,7 @@ def add_default_quests():
         print("✅ Default quests added.")
 
 # ─── OPTIONAL: GET CURRENT USER INFO ──────────────────────────────────────────
-@app.route('/me', methods=['GET', 'OPTIONS'])
+@app.route('/api/me', methods=['GET', 'OPTIONS'])
 def get_me():
     if request.method == 'OPTIONS':
         return '', 204

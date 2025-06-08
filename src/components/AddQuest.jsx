@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { createQuest } from '../api'
 import '../styles/AddQuest.css';
+
 
 export default function AddQuest({ onAddQuest, onClose }) {
   const [newTask, setNewTask] = useState('');
@@ -16,7 +18,7 @@ export default function AddQuest({ onAddQuest, onClose }) {
     setIsGenerating(true); // Start loading
 
     try {
-      const response = await fetch("http://localhost:5050/generate", {
+      const response = await fetch(`/api/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: 'include', //added here
@@ -68,17 +70,10 @@ export default function AddQuest({ onAddQuest, onClose }) {
       alert("Invalid quest format.");
       return;
     }
-
     // Now POST to /quests so the server writes to the database
     try {
-      const resp = await fetch("http://localhost:5050/quests", {
-        method: "POST",
-        credentials: "include",            // <<– must include so Flask sees session['user_id']
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newQuest)
-      });
-      if (!resp.ok) throw new Error("Failed to save quest");
-      const saved = await resp.json();    // assuming your /quests POST returns new_q.serialize()
+      const saved = await createQuest(newQuest);
+     // assuming your /quests POST returns new_q.serialize()
       // Now update React state with the truly saved quest:
       onAddQuest(saved);
       setNewTask("");
