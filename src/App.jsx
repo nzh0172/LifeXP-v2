@@ -6,6 +6,15 @@ import QuestDetail from './components/QuestDetail.jsx';
 import AddQuest from './components/AddQuest.jsx';
 import Login from './components/Login.jsx';
 import Register from './components/Register.jsx';
+import {
+  fetchMe,
+  fetchQuests,
+  acceptQuest as apiAcceptQuest,
+  giveupQuest as apiGiveupQuest,
+  completeQuest as apiCompleteQuest,
+  logout as apiLogout
+} from './api';
+
 
 function App() {
   // State for user auth
@@ -29,12 +38,7 @@ function App() {
   // ------------ LOGIN ------------------------------------
   // On app load, check if already logged in
   useEffect(() => {
-    fetch('http://localhost:5050/me', {
-      method: 'GET',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((res) => res.json())
+      fetchMe() // call api
       .then((data) => {
         if (data.user) {
           setUser(data.user);
@@ -57,19 +61,7 @@ function App() {
   useEffect(() => {
     // If not authenticated, show login (or register) UI
     if (!user) return;
-
-    // Example: fetch quests from protected endpoint
-    fetch('http://localhost:5050/quests', {
-      method: 'GET',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Failed to fetch quests');
-        }
-        return res.json();
-      })
+      fetchQuests() //call api
       .then((data) => {
         setQuests(data);
       })
@@ -136,12 +128,7 @@ function App() {
         <Login
           onLoginSuccess={() => {
             // Re‐fetch /me to get user info
-            fetch('http://localhost:5050/me', {
-              method: 'GET',
-              credentials: 'include',
-              headers: { 'Content-Type': 'application/json' },
-            })
-              .then((res) => res.json())
+            fetchMe()
               .then((data) => {
                 if (data.user) {
                   setUser(data.user);
@@ -186,14 +173,7 @@ function App() {
   // Accept a quest
   const acceptQuest = async (questId) => {
     try {
-      const resp = await fetch(`http://localhost:5050/quests/${questId}/accept`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!resp.ok) throw new Error('Failed to accept quest');
-
-      const { status } = await resp.json(); // { id: 4, status: "In Progress" }
+      const { status } = await apiAcceptQuest(questId) // { id: 4, status: "In Progress" }
       // Update local state: find the quest and set its new status
       setQuests(prev => prev.map(q =>
         q.id === questId
@@ -208,19 +188,7 @@ function App() {
   // Give up on a quest
   const giveupQuest = async (questId) => {
     try {
-      const resp = await fetch(
-        `http://localhost:5050/quests/${questId}/giveup`,
-        {
-          method: 'DELETE',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-
-      if (!resp.ok) {
-        const errData = await resp.json();
-        throw new Error(errData.error || 'Failed to delete quest');
-      }
+      await apiGiveupQuest(questId);
 
       // Remove it from local state so the UI updates immediately
       setQuests(prev => prev.filter(q => q.id !== questId));
@@ -234,15 +202,8 @@ function App() {
   // Complete a quest 
   const completeQuest = async (questId) => {
     try {
-      const resp = await fetch(`http://localhost:5050/quests/${questId}`, {
-        method: "PATCH",
-        credentials: "include", // send cookie
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "Completed" }),
-      });
-      if (!resp.ok) throw new Error("Failed to complete quest");
+      const json = await apiCompleteQuest(questId);
 
-      const json = await resp.json();
       // JSON: { message: "Quest completed", total_xp: <new_total> }
 
       // 1) Update local totalXP to match the server
@@ -276,21 +237,18 @@ function App() {
   };
 
   // ─── LOGOUT HANDLER ─────────────────────────────────────────────────────────
-  const handleLogout = () => {
-    fetch('http://localhost:5050/logout', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((res) => {
-        if (res.ok) {
-          setUser(null);
-          // Optionally clear quest state
-          setQuests([]);
-          setTotalXP(0);
-        }
-      })
-      .catch((err) => console.error('Logout error:', err));
+  const handleLogout = async () => {
+    try {
+      await apiLogout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      // Reset application state after logout
+      setUser(null);
+      setQuests([]);
+      setTotalXP(0);
+
+  }
   };
 
   return (
